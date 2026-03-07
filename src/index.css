@@ -1,0 +1,122 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  :root {
+    --background: 45 30% 98%;
+    --foreground: 45 30% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 45 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 45 30% 12%;
+
+    --primary: 152 60% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 18% 94%;
+    --secondary-foreground: 45 30% 12%;
+
+    --muted: 45 16% 93%;
+    --muted-foreground: 45 14% 46%;
+
+    --accent: 152 40% 93%;
+    --accent-foreground: 152 60% 26%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 95% 16%;
+
+    --success: 152 60% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 214 20% 90%;
+    --input: 214 20% 90%;
+    --ring: 152 60% 36%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 220 26% 14%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 152 60% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 20%;
+    --sidebar-accent-foreground: 210 20% 90%;
+    --sidebar-border: 220 20% 22%;
+    --sidebar-ring: 152 60% 46%;
+    --sidebar-muted: 220 15% 30%;
+    --blocked: 0 100% 50%;
+    /* Janasena Party Vibrant Red */
+    --saffron: 28 100% 60%;
+    /* Saffron for Maintenance */
+  }
+
+  .dark {
+    --background: 45 26% 10%;
+    --foreground: 45 20% 96%;
+    --card: 45 26% 14%;
+    --card-foreground: 45 20% 96%;
+    --popover: 45 26% 14%;
+    --popover-foreground: 45 20% 96%;
+    --primary: 152 60% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 20% 20%;
+    --secondary-foreground: 45 20% 90%;
+    --muted: 45 15% 18%;
+    --muted-foreground: 45 14% 60%;
+    --accent: 152 30% 18%;
+    --accent-foreground: 152 60% 70%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 95% 16%;
+    --success: 152 60% 42%;
+    --success-foreground: 0 0% 100%;
+    --border: 45 20% 22%;
+    --input: 45 20% 22%;
+    --ring: 152 60% 42%;
+    --sidebar-background: 45 30% 8%;
+    --sidebar-foreground: 45 20% 90%;
+    --sidebar-primary: 152 60% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 20% 14%;
+    --sidebar-accent-foreground: 45 20% 90%;
+    --sidebar-border: 45 20% 16%;
+    --sidebar-ring: 152 60% 46%;
+    --blocked: 0 100% 50%;
+    --saffron: 28 100% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .card-shadow {
+    box-shadow: 0 1px 3px 0 hsl(45 30% 12% / 0.06), 0 1px 2px -1px hsl(45 30% 12% / 0.06);
+  }
+
+  .card-shadow-lg {
+    box-shadow: 0 4px 12px 0 hsl(45 30% 12% / 0.08), 0 2px 4px -2px hsl(45 30% 12% / 0.06);
+  }
+}

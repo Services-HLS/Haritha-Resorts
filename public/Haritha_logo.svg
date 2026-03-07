@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="leafGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4CAF50" />
+      <stop offset="100%" stop-color="#1B5E20" />
+    </linearGradient>
+    <linearGradient id="sunGradient" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF9800" />
+      <stop offset="100%" stop-color="#FFC107" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(100, 40)">
+    <circle cx="100" cy="100" r="50" fill="url(#sunGradient)"/>
+    
+    <rect x="70" y="110" width="60" height="60" rx="4" fill="#263238" />
+    <polygon points="100,70 60,110 140,110" fill="#37474F" />
+    
+    <rect x="80" y="130" width="10" height="15" rx="2" fill="#E0F7FA" />
+    <rect x="110" y="130" width="10" height="15" rx="2" fill="#E0F7FA" />
+    <rect x="80" y="155" width="10" height="15" rx="2" fill="#E0F7FA" />
+    <rect x="110" y="155" width="10" height="15" rx="2" fill="#E0F7FA" />
+    
+    <path d="M 10 180 Q 55 160 100 180 T 190 180" fill="none" stroke="#0097A7" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 0 200 Q 45 180 90 200 T 180 200" fill="none" stroke="#4DD0E1" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <text x="50%" y="310" font-family="'Inter', 'Segoe UI', 'Roboto', sans-serif" font-size="44" font-weight="900" fill="#1B5E20" text-anchor="middle" letter-spacing="3">HARITHA</text>
+  <text x="50%" y="350" font-family="'Inter', 'Segoe UI', 'Roboto', sans-serif" font-size="24" font-weight="600" fill="#37474F" text-anchor="middle" letter-spacing="8">RESORTS</text>
+</svg>
