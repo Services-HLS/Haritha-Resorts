@@ -122,14 +122,14 @@ export default function Login() {
                 className="flex justify-between items-center text-[10px] p-2 bg-white/60 rounded-lg cursor-pointer hover:bg-white transition-all border border-transparent hover:border-primary/20"
                 onClick={() => { setEmail('araku@hms.gov.in'); setPassword('password123'); }}
               >
-                <span className="text-muted-foreground font-medium">Araku Valley</span>
+                <span className="text-muted-foreground font-medium">Haritha Valley Resort</span>
                 <code className="text-primary font-bold">araku / pass123</code>
               </div>
               <div
                 className="flex justify-between items-center text-[10px] p-2 bg-white/60 rounded-lg cursor-pointer hover:bg-white transition-all border border-transparent hover:border-primary/20"
                 onClick={() => { setEmail('rushikonda@hms.gov.in'); setPassword('password123'); }}
               >
-                <span className="text-muted-foreground font-medium">Rushikonda</span>
+                <span className="text-muted-foreground font-medium">Mayuri Hill Resort</span>
                 <code className="text-primary font-bold">rushikonda / pass123</code>
               </div>
             </div>

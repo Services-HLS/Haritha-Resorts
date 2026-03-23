@@ -68,7 +68,7 @@ export default function PropertyDashboard() {
         bookings={currentProperty.bookings}
         totalRooms={currentProperty.totalRooms}
         onDateClick={(d) => {
-          const dayBookings = currentProperty.bookings.filter(b => b.status !== 'Cancelled' && b.checkIn <= d && b.checkOut > d);
+          const dayBookings = currentProperty.bookings.filter(b => b.status !== 'Cancelled' && b.checkIn <= d && b.checkOut >= d);
           if (dayBookings.length >= 2) {
             navigate(`/property/${currentProperty.id}/day-view/${d}`);
           } else if (dayBookings.length === 1) {

@@ -142,7 +142,7 @@ export default function RoomDetails() {
                             totalRooms={1}
                             className="w-full"
                             onDateClick={(d) => {
-                                const existing = roomBookings.find(b => b.status !== 'Cancelled' && b.checkIn <= d && b.checkOut > d);
+                                const existing = roomBookings.find(b => b.status !== 'Cancelled' && b.checkIn <= d && b.checkOut >= d);
                                 if (existing) {
                                     setSelectedBooking(existing);
                                 } else {

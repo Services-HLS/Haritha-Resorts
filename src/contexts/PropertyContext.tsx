@@ -29,13 +29,13 @@ const PropertyContext = createContext<PropertyContextType | undefined>(undefined
 export function PropertyProvider({ children }: { children: ReactNode }) {
   // Clear problematic legacy storage keys
   useEffect(() => {
-    ['hms_all_properties', 'hms_all_properties_v2', 'hms_all_properties_v3', 'hms_all_properties_v4', 'hms_all_properties_v5', 'hms_all_properties_v6', 'hms_all_properties_v7', 'hms_all_properties_v8', 'hms_all_properties_v9', 'hms_all_properties_v10'].forEach(key => {
+    ['hms_all_properties', 'hms_all_properties_v2', 'hms_all_properties_v3', 'hms_all_properties_v4', 'hms_all_properties_v5', 'hms_all_properties_v6', 'hms_all_properties_v7', 'hms_all_properties_v8', 'hms_all_properties_v9', 'hms_all_properties_v10', 'hms_all_properties_v11'].forEach(key => {
       try { localStorage.removeItem(key); } catch (e) { }
     });
   }, []);
 
   const [allProperties, setAllProperties] = useState<Property[]>(() => {
-    const saved = localStorage.getItem('hms_all_properties_v11');
+    const saved = localStorage.getItem('hms_all_properties_v12');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -49,7 +49,7 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem('hms_all_properties_v11', JSON.stringify(allProperties));
+      localStorage.setItem('hms_all_properties_v12', JSON.stringify(allProperties));
     } catch (e) {
       console.warn('LocalStorage quota exceeded. Changes might not persist across sessions.', e);
     }

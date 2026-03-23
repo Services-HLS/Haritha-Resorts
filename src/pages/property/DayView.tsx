@@ -30,15 +30,15 @@ export default function DayView() {
 
     // Filter activities for this date
     const dayActivities = id === 'all'
-        ? allProperties.flatMap(p => p.bookings).filter(b =>
+        ? allProperties.flatMap(p => p.bookings.map(b => ({ ...b, propertyId: p.id }))).filter(b =>
             b.status !== 'Cancelled' &&
             b.checkIn <= (date || '') &&
-            b.checkOut > (date || '')
+            b.checkOut >= (date || '')
         )
         : (property?.bookings || []).filter(b =>
             b.status !== 'Cancelled' &&
             b.checkIn <= (date || '') &&
-            b.checkOut > (date || '')
+            b.checkOut >= (date || '')
         );
 
     if ((!property && id !== 'all') || !date) return null;
@@ -184,7 +184,7 @@ export default function DayView() {
                         setSelectedBooking(null);
                     }}
                     initialData={selectedBooking}
-                    fixedPropertyId={selectedBooking.propertyId}
+                    fixedPropertyId={id !== 'all' ? id : selectedBooking.propertyId}
                 />
             )}
         </div>

@@ -159,7 +159,7 @@ export default function BookingManagement() {
             bookings={bookings}
             totalRooms={currentProperty.totalRooms}
             onDateClick={(d) => {
-              const dayBookings = bookings.filter(b => b.status !== 'Cancelled' && b.checkIn <= d && b.checkOut > d);
+              const dayBookings = bookings.filter(b => b.status !== 'Cancelled' && b.checkIn <= d && b.checkOut >= d);
               if (dayBookings.length >= 2) {
                 navigate(`/property/${currentProperty.id}/day-view/${d}`);
               } else if (dayBookings.length === 1) {

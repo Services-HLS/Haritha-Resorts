@@ -62,6 +62,68 @@ export function BookingFormModal({ open, onClose, initialData, fixedPropertyId, 
         return 'booking';
     });
 
+    // Rehydrate form state whenever modal opens with different booking context.
+    // Without this, opening another booked room can show stale or empty details.
+    useEffect(() => {
+        if (!open) return;
+
+        const freshPropertyId = fixedPropertyId || initialData?.propertyId || '';
+        const freshToday = new Date().toISOString().split('T')[0];
+        const freshDefaultCheckIn = (initialDate || freshToday) + 'T12:00';
+        const freshTomorrowStr = initialDate
+            ? new Date(new Date(initialDate).getTime() + 86400000).toISOString().split('T')[0]
+            : new Date(Date.now() + 86400000).toISOString().split('T')[0];
+        const freshDefaultCheckOut = freshTomorrowStr + 'T11:00';
+
+        const freshCheckIn = initialData?.checkIn || freshDefaultCheckIn;
+        const freshCheckOut = initialData?.checkOut || freshDefaultCheckOut;
+
+        const freshProperty = allProperties.find(p => p.id === freshPropertyId);
+        const freshRoomId = initialData?.roomId || initialRoomId || '';
+        const freshRoom = freshProperty?.rooms.find(r => r.id === freshRoomId);
+        const derivedRoomType = initialRoomType || freshRoom?.type || '';
+
+        const freshActionType: 'booking' | 'maintenance' | 'blocked' =
+            initialData?.status === 'Maintenance' ? 'maintenance'
+                : initialData?.status === 'Blocked' ? 'blocked'
+                    : 'booking';
+
+        const freshStatus =
+            initialData?.status ||
+            (freshActionType === 'maintenance' ? 'Maintenance'
+                : freshActionType === 'blocked' ? 'Blocked'
+                    : 'Confirmed');
+
+        setPropertyId(freshPropertyId);
+        setGuestName(initialData?.guestName || '');
+        setGuestPhone(initialData?.guestPhone || '');
+        setGuestEmail(initialData?.guestEmail || '');
+        setCheckIn(freshCheckIn);
+        setCheckOut(freshCheckOut);
+        setRoomType(derivedRoomType);
+        setRoomId(freshRoomId);
+        setAdults(initialData?.adults?.toString() || '1');
+        setChildren(initialData?.children?.toString() || '0');
+        setExtraBeds(initialData?.extraBeds?.toString() || '0');
+        setAddOns(initialData?.addOns || []);
+        setPaymentStatus(initialData?.paymentStatus || 'Unpaid');
+        setPaymentType(initialData?.paymentType || 'Cash');
+        setPaidAmount(initialData?.paidAmount?.toString() || '');
+        setStatus(freshStatus);
+        setActionType(freshActionType);
+        setError('');
+    }, [
+        open,
+        initialData?.id,
+        initialData?.propertyId,
+        initialData?.roomId,
+        initialDate,
+        initialRoomId,
+        initialRoomType,
+        fixedPropertyId,
+        allProperties
+    ]);
+
     useEffect(() => {
         if (initialData?.status === 'Maintenance') setActionType('maintenance');
         else if (initialData?.status === 'Blocked') setActionType('blocked');
@@ -97,19 +159,28 @@ export function BookingFormModal({ open, onClose, initialData, fixedPropertyId, 
         }
     }, [availableRoomTypes, roomType, initialData, initialRoomType]);
 
-    // Derive Available Rooms for selected property, date range, and room type
-    const availableRoomsList = useMemo(() => {
+    // Build room options for selected property/date/type with availability marker.
+    // This lets users see which rooms are Booked vs Available in the same dropdown.
+    const roomOptions = useMemo(() => {
         if (!selectedProperty || !roomType || !checkIn || !checkOut) return [];
 
         if (initialRoomId) {
-            return selectedProperty.rooms.filter(r => r.id === initialRoomId);
+            return selectedProperty.rooms
+                .filter(r => r.id === initialRoomId)
+                .map(r => ({ ...r, isAvailable: true }));
         }
 
         const possibleRooms = selectedProperty.rooms.filter(r => r.type === roomType);
-        return possibleRooms.filter(r =>
-            checkRoomAvailability(selectedProperty.id, r.id, checkIn, checkOut, initialData?.id)
-        );
+        return possibleRooms.map(r => ({
+            ...r,
+            isAvailable: checkRoomAvailability(selectedProperty.id, r.id, checkIn, checkOut, initialData?.id)
+        }));
     }, [selectedProperty, roomType, checkIn, checkOut, checkRoomAvailability, initialData, initialRoomId]);
+
+    const availableRoomsList = useMemo(
+        () => roomOptions.filter(r => r.isAvailable),
+        [roomOptions]
+    );
 
     // Automatically select first available room if current is empty or invalid
     useEffect(() => {
@@ -389,13 +460,15 @@ export function BookingFormModal({ open, onClose, initialData, fixedPropertyId, 
                                     value={roomId} onChange={e => setRoomId(e.target.value)} required
                                     disabled={!!initialRoomId || !!initialData}
                                 >
-                                    {initialRoomId && availableRoomsList.length > 0 ? (
-                                        <option value={roomId}>Room {availableRoomsList.find(r => r.id === roomId)?.number || selectedProperty?.rooms.find(r => r.id === roomId)?.number} (Locked to Request)</option>
+                                    {initialRoomId && roomOptions.length > 0 ? (
+                                        <option value={roomId}>Room {roomOptions.find(r => r.id === roomId)?.number || selectedProperty?.rooms.find(r => r.id === roomId)?.number} (Locked to Request)</option>
                                     ) : (
                                         <>
                                             <option value="">-- Choose Available --</option>
-                                            {availableRoomsList.map(r => (
-                                                <option key={r.id} value={r.id}>Room {r.number} (₹{r.pricePerNight}/nt)</option>
+                                            {roomOptions.map(r => (
+                                                <option key={r.id} value={r.id} disabled={!r.isAvailable}>
+                                                    Room {r.number} (₹{r.pricePerNight}/nt) {r.isAvailable ? '- Available' : '- Booked'}
+                                                </option>
                                             ))}
                                         </>
                                     )}

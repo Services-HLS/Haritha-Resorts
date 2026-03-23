@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProperty } from '@/contexts/PropertyContext';
 import { properties as dummyProps, getPropertyStats } from '@/data/mockData';
@@ -78,6 +78,19 @@ export default function GlobalDashboard() {
   const [selectedDateRange, setSelectedDateRange] = useState({ from: '', to: '' });
   const [dateMode, setDateMode] = useState<'Range' | 'Single'>('Range');
   const [filterMode, setFilterMode] = useState('All Properties');
+  const fromDateInputRef = useRef<HTMLInputElement>(null);
+  const toDateInputRef = useRef<HTMLInputElement>(null);
+
+  const openDatePicker = (inputRef: RefObject<HTMLInputElement>) => {
+    if (!inputRef.current) return;
+
+    inputRef.current.focus();
+    if (typeof inputRef.current.showPicker === 'function') {
+      inputRef.current.showPicker();
+    } else {
+      inputRef.current.click();
+    }
+  };
 
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
@@ -322,8 +335,12 @@ export default function GlobalDashboard() {
             <div className="grid grid-cols-2 gap-3">
               {dateMode === 'Range' ? (
                 <>
-                  <div className="relative">
+                  <div
+                    className="relative cursor-pointer"
+                    onClick={() => openDatePicker(fromDateInputRef)}
+                  >
                     <Input
+                      ref={fromDateInputRef}
                       type="date"
                       value={selectedDateRange.from || ''}
                       onChange={e => {
@@ -333,8 +350,12 @@ export default function GlobalDashboard() {
                       className="h-11 px-4 text-sm font-medium border-slate-200 focus:border-primary/50 transition-all w-full bg-white"
                     />
                   </div>
-                  <div className="relative">
+                  <div
+                    className="relative cursor-pointer"
+                    onClick={() => openDatePicker(toDateInputRef)}
+                  >
                     <Input
+                      ref={toDateInputRef}
                       type="date"
                       value={selectedDateRange.to || ''}
                       onChange={e => {
@@ -346,8 +367,12 @@ export default function GlobalDashboard() {
                   </div>
                 </>
               ) : (
-                <div className="col-span-2">
+                <div
+                  className="col-span-2 cursor-pointer"
+                  onClick={() => openDatePicker(fromDateInputRef)}
+                >
                   <Input
+                    ref={fromDateInputRef}
                     type="date"
                     value={selectedDateRange.from || ''}
                     onChange={e => {

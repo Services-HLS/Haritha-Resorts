@@ -24,7 +24,7 @@ export function BookingCalendar({ bookings, totalRooms = 30, className, onDateCl
   const next = () => setCurrentDate(new Date(year, month + 1, 1));
 
   function getDayData(dateStr: string) {
-    const dayBookings = bookings.filter(b => b.checkIn <= dateStr && b.checkOut > dateStr);
+    const dayBookings = bookings.filter(b => b.checkIn <= dateStr && b.checkOut >= dateStr);
 
     const counts = {
       Booked: 0,

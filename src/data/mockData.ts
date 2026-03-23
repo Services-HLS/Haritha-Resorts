@@ -265,9 +265,43 @@ function generateIntelligentBookings(rooms: Room[], isMainResort: boolean): Book
     paidAmount: 0,
   });
 
+  // 4. Guaranteed Check-In Today (active guest booking)
+  bookings.push({
+    id: `bk-guar-checkin-today-${rooms[3].id}`,
+    guestName: guestName(),
+    guestEmail: 'checkin.today@email.com',
+    guestPhone: '+91 77777 11111',
+    roomId: rooms[3].id,
+    roomNumber: rooms[3].number,
+    checkIn: `${dateStr(0)}T12:00`,
+    checkOut: `${dateStr(2)}T11:00`,
+    status: 'Confirmed',
+    bookingDate: dateStr(-1),
+    paymentStatus: 'Partial',
+    totalAmount: rooms[3].pricePerNight * 2,
+    paidAmount: Math.round((rooms[3].pricePerNight * 2) * 0.5),
+  });
+
+  // 5. Guaranteed Check-Out Today (guest stay ending today)
+  bookings.push({
+    id: `bk-guar-checkout-today-${rooms[4].id}`,
+    guestName: guestName(),
+    guestEmail: 'checkout.today@email.com',
+    guestPhone: '+91 66666 22222',
+    roomId: rooms[4].id,
+    roomNumber: rooms[4].number,
+    checkIn: `${dateStr(-2)}T12:00`,
+    checkOut: `${dateStr(0)}T11:00`,
+    status: 'Checked-Out',
+    bookingDate: dateStr(-3),
+    paymentStatus: 'Paid',
+    totalAmount: rooms[4].pricePerNight * 2,
+    paidAmount: rooms[4].pricePerNight * 2,
+  });
+
   rooms.forEach((room, index) => {
     // Skip random generation for the guaranteed rooms
-    if (index < 3) return;
+    if (index < 5) return;
     // 1. PAST DATA (-30 to -1 days)
     // Only for main resorts to save huge space
     if (isMainResort) {
@@ -535,7 +569,7 @@ const realPropertiesData = [
 ];
 
 export const properties: Property[] = realPropertiesData.map((data, i) => {
-  const isMainResort = (i === 0 || i === 10); // Araku (0) and Rushikonda (10)
+  const isMainResort = (i === 0 || i === 1); // Haritha Valley (0) and Mayuri Hill (1)
   const totalRooms = isMainResort ? rand(30, 45) : rand(10, 20); // Reduced room counts to save space
   const taxPct = pick([5, 12]);
   const rooms = generateRooms(totalRooms);
@@ -564,14 +598,15 @@ export const properties: Property[] = realPropertiesData.map((data, i) => {
 // ===== AGGREGATE STATS =====
 export function getGlobalStats() {
   const today = new Date().toISOString().split('T')[0];
+  const toDateOnly = (value: string) => (value || '').split('T')[0];
   let totalRooms = 0, totalBookings = 0, todayCheckIns = 0, todayCheckOuts = 0, totalRevenue = 0, totalExpenses = 0, occupiedRooms = 0;
   properties.forEach(p => {
     totalRooms += p.totalRooms;
     totalBookings += p.bookings.length;
     occupiedRooms += p.rooms.filter(r => r.status === 'Occupied').length;
     p.bookings.forEach(b => {
-      if (b.checkIn === today) todayCheckIns++;
-      if (b.checkOut === today) todayCheckOuts++;
+      if (!['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) && toDateOnly(b.checkIn) === today) todayCheckIns++;
+      if (!['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) && toDateOnly(b.checkOut) === today) todayCheckOuts++;
       if (!['Cancelled', 'Maintenance', 'Blocked'].includes(b.status)) totalRevenue += b.totalAmount;
     });
     (p.expenses || []).forEach(e => {
@@ -592,6 +627,11 @@ export function getGlobalStats() {
 
 export function getPropertyStats(property: Property, fStart?: string, fEnd?: string) {
   const today = new Date().toISOString().split('T')[0];
+  const toDateOnly = (value: string) => (value || '').split('T')[0];
+  const inDateRange = (value: string, start: string, end: string) => {
+    const d = toDateOnly(value);
+    return d >= start && d <= end;
+  };
 
   // If NO date range is provided, show the "Entire Data" (Current real-time status of rooms)
   if (!fStart || fStart === '') {
@@ -614,8 +654,8 @@ export function getPropertyStats(property: Property, fStart?: string, fEnd?: str
       occupied,
       available,
       todayBookings: property.bookings.filter(b => !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status)).length,
-      todayCheckIns: property.bookings.filter(b => b.checkIn === today).length,
-      todayCheckOuts: property.bookings.filter(b => b.checkOut === today).length,
+      todayCheckIns: property.bookings.filter(b => !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) && toDateOnly(b.checkIn) === today).length,
+      todayCheckOuts: property.bookings.filter(b => !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) && toDateOnly(b.checkOut) === today).length,
       revenue,
       expenses,
       totalRooms: property.totalRooms || property.rooms.length,
@@ -633,7 +673,7 @@ export function getPropertyStats(property: Property, fStart?: string, fEnd?: str
     return property.bookings.some(b =>
       b.roomId === r.id &&
       !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) &&
-      (b.checkIn <= end && b.checkOut > start)
+      (b.checkIn <= end && b.checkOut >= start)
     );
   }).length;
 
@@ -641,7 +681,7 @@ export function getPropertyStats(property: Property, fStart?: string, fEnd?: str
     return property.bookings.some(b =>
       b.roomId === r.id &&
       b.status === 'Maintenance' &&
-      (b.checkIn <= end && b.checkOut > start)
+      (b.checkIn <= end && b.checkOut >= start)
     );
   }).length;
 
@@ -649,27 +689,27 @@ export function getPropertyStats(property: Property, fStart?: string, fEnd?: str
     return property.bookings.some(b =>
       b.roomId === r.id &&
       b.status === 'Blocked' &&
-      (b.checkIn <= end && b.checkOut > start)
+      (b.checkIn <= end && b.checkOut >= start)
     );
   }).length;
 
   const occupied = bookCount + maintCount + blockCount;
   const available = Math.max(0, (property.totalRooms || property.rooms.length) - occupied);
 
-  const todayBookings = property.bookings.filter(b => (b.bookingDate || b.checkIn) >= start && (b.bookingDate || b.checkIn) <= end && b.status !== 'Cancelled').length;
-  const todayCheckIns = property.bookings.filter(b => b.checkIn >= start && b.checkIn <= end && b.status !== 'Cancelled').length;
-  const todayCheckOuts = property.bookings.filter(b => b.checkOut >= start && b.checkOut <= end && b.status !== 'Cancelled').length;
+  const todayBookings = property.bookings.filter(b => inDateRange((b.bookingDate || b.checkIn), start, end) && b.status !== 'Cancelled').length;
+  const todayCheckIns = property.bookings.filter(b => !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) && inDateRange(b.checkIn, start, end)).length;
+  const todayCheckOuts = property.bookings.filter(b => !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status) && inDateRange(b.checkOut, start, end)).length;
 
   const revenue = property.bookings.reduce((s, b) => {
     const date = b.bookingDate || b.checkIn;
-    if (date >= start && date <= end && !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status)) {
+    if (inDateRange(date, start, end) && !['Cancelled', 'Maintenance', 'Blocked'].includes(b.status)) {
       const amount = b.paidAmount || (b.paymentStatus === 'Paid' ? b.totalAmount : 0);
       return s + amount;
     }
     return s;
   }, 0);
 
-  const expenses = (property.expenses || []).filter(e => e.date >= start && e.date <= end).reduce((s, e) => s + e.amount, 0);
+  const expenses = (property.expenses || []).filter(e => inDateRange(e.date, start, end)).reduce((s, e) => s + e.amount, 0);
 
   return { occupied, available, todayBookings, todayCheckIns, todayCheckOuts, revenue, expenses, totalRooms: property.totalRooms || property.rooms.length, bookCount, maintCount, blockCount };
 }

@@ -37,7 +37,7 @@ export default function RoomsManagement() {
     const activeBooking = currentProperty.bookings.find(b =>
       b.roomId === room.id &&
       b.status !== 'Cancelled' &&
-      b.checkIn <= dateFilter && b.checkOut > dateFilter
+      b.checkIn <= dateFilter && b.checkOut >= dateFilter
     );
     if (!activeBooking) return 'Available';
     if (activeBooking.status === 'Maintenance') return 'Under Maintenance';
